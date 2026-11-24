@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test de Orientación Vocacional | Bachillerato Tecnológico</title>
+
+  <!-- Fuente Inter para lectura clara en móviles y escritorio -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS para diseño responsivo y adaptable -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Librería ligera QRCode.js para generar el código QR dinámico -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* Ajustes base y animaciones suaves para una experiencia ágil en celular */
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fade-up {
+      animation: fadeSlideUp 0.28s ease-out forwards;
+    }
+
+    /* Estilos específicos para imprimir únicamente el código QR docente */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #qr-print-area,
+      #qr-print-area * {
+        visibility: visible;
+      }
+      #qr-print-area {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        max-width: 420px;
+        box-shadow: none !important;
+        border: 1px solid #cbd5e1 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- Contenedor principal centrado con ancho cómodo para móvil y escritorio -->
+  <div class="min-h-screen flex flex-col justify-between max-w-xl mx-auto px-4 py-5 sm:py-8">
+
+    <!-- Encabezado superior con marca y acceso discreto a Modo Docente / QR -->
+    <header class="flex items-center justify-between gap-3 mb-5">
+      <button
+        type="button"
+        id="brand-home-btn"
+        class="flex items-center gap-2.5 text-left rounded-xl p-1.5 -ml-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+        aria-label="Ir al inicio del test"
+      >
+        <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-base shadow-sm">
+          1°
+        </div>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+            Bachillerato Tecnológico
+          </p>
+          <p class="text-sm font-bold text-slate-900 dark:text-white leading-tight">
+            Orientación Vocacional
+          </p>
+        </div>
+      </button>
+
+      <!-- Botón discreto para el docente -->
+      <button
+        type="button"
+        id="open-teacher-btn"
+        class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 shadow-2xs transition cursor-pointer"
+      >
+        <!-- Icono de código QR -->
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h7v7H3V3zm11 0h7v7h-7V3zM3 14h7v7H3v-7zm11 3h3v4h-3v-4zm4-3h3v3h-3v-3zm0 6h3v1h-3v-1z" />
+        </svg>
+        <span>Modo Docente / QR</span>
+      </button>
+    </header>
+
+    <!-- Área de contenido dinámico -->
+    <main id="app-root" class="flex-1 flex flex-col">
+      <!-- Renderizado por JavaScript -->
+    </main>
+
+    <!-- Pie de página sencillo -->
+    <footer class="mt-8 pt-4 border-t border-slate-200/80 dark:border-slate-800/80 text-center text-xs text-slate-500 dark:text-slate-400">
+      Test de orientación para 1.er semestre • Recursos Humanos, Cosmetología, Programación y Comercio Internacional y Aduanas
+    </footer>
+  </div>
+
+  <!-- Modal / Panel de Modo Docente / Código QR -->
+  <div
+    id="teacher-modal"
+    class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="teacher-modal-title"
+  >
+    <div
+      id="qr-print-area"
+      class="w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 animate-fade-up"
+    >
+      <div class="flex items-start justify-between gap-3 mb-4">
+        <div>
+          <span class="inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 mb-1.5">
+            Herramienta para el aula
+          </span>
+          <h2 id="teacher-modal-title" class="text-lg font-bold text-slate-900 dark:text-white">
+            Modo Docente / Código QR
+          </h2>
+        </div>
+        <button
+          type="button"
+          id="close-teacher-btn"
+          class="no-print p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+          aria-label="Cerrar ventana docente"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300 mb-4 leading-relaxed">
+        Proyecta o imprime este código QR para que tus alumnos abran el test en su celular y conozcan su especialidad sugerida al instante.
+      </p>
+
+      <!-- Contenedor donde se genera el código QR dinámicamente -->
+      <div class="flex flex-col items-center justify-center bg-white p-5 rounded-2xl border border-slate-200 mb-4">
+        <div id="qrcode-container" class="flex items-center justify-center min-h-[192px] min-w-[192px]"></div>
+        <p class="mt-3 text-xs font-medium text-slate-500 text-center">
+          Escanea con la cámara de tu teléfono
+        </p>
+      </div>
+
+      <!-- Campo de URL editable por si el docente desea apuntar a una dirección específica -->
+      <div class="no-print mb-4">
+        <label for="qr-url-input" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          Enlace actual del test (puedes ajustarlo si lo publicas en otra URL):
+        </label>
+        <div class="flex gap-2">
+          <input
+            type="url"
+            id="qr-url-input"
+            class="flex-1 min-w-0 px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          <button
+            type="button"
+            id="copy-url-btn"
+            class="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer shrink-0"
+          >
+            Copiar
+          </button>
+        </div>
+        <p id="copy-feedback" class="text-xs text-emerald-600 dark:text-emerald-400 mt-1.5 hidden font-medium">
+          ¡Enlace copiado al portapapeles!
+        </p>
+      </div>
+
+      <!-- Botones de acción para el docente -->
+      <div class="no-print flex flex-col sm:flex-row gap-2.5">
+        <button
+          type="button"
+          id="print-qr-btn"
+          class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition cursor-pointer"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+          </svg>
+          <span>Imprimir / Guardar QR</span>
+        </button>
+        <button
+          type="button"
+          id="done-teacher-btn"
+          class="px-4 py-3 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
+        >
+          Listo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * =========================================================================
+     * CONFIGURACIÓN Y DATOS DEL TEST DE ORIENTACIÓN VOCACIONAL
+     * Bachillerato Tecnológico (1.er Semestre) - México
+     * =========================================================================
+     */
+
+    // Definición de las 4 especialidades y sus características
+    const SPECIALTIES = {
+      rrhh: {
+        id: 'rrhh',
+        name: 'Recursos Humanos',
+        shortName: 'RH',
+        badge: 'Personas, equipos y buen ambiente',
+        summary:
+          'Ideal para ti si te gusta convivir con las personas, escuchar, organizar equipos, cuidar el buen ambiente y apoyar el crecimiento de los demás.',
+        learnings: [
+          'Integración de personal, comunicación en el trabajo y motivación de equipos.',
+          'Organización de actividades, capacitación y procesos básicos para que las personas trabajen a gusto.',
+          'Resolución pacífica de diferencias y apoyo en el seguimiento del desempeño.'
+        ],
+        skills: ['Empatía', 'Comunicación clara', 'Liderazgo', 'Organización', 'Trabajo en equipo'],
+        colors: {
+          pillBg: 'bg-amber-100 dark:bg-amber-950/70',
+          pillText: 'text-amber-800 dark:text-amber-300',
+          barBg: 'bg-amber-500',
+          cardBorder: 'border-amber-200 dark:border-amber-800/60',
+          heroBg: 'from-amber-500 to-orange-500'
+        }
+      },
+      cosmetologia: {
+        id: 'cosmetologia',
+        name: 'Cosmetología',
+        shortName: 'Cosmetología',
+        badge: 'Cuidado de la piel, cabello e imagen',
+        summary:
+          'Ideal para ti si te atraen el cuidado de la piel y el cabello, la estética, la higiene, la precisión en las medidas y el trato cercano y cuidadoso.',
+        learnings: [
+          'Técnicas básicas de cuidado facial, corporal y capilar según las necesidades de cada persona.',
+          'Protocolos estrictos de higiene, limpieza, seguridad y cuidado responsable.',
+          'Preparación y aplicación cuidadosa de tratamientos estéticos y de bienestar.'
+        ],
+        skills: ['Atención al detalle', 'Paciencia', 'Higiene y orden', 'Creatividad', 'Trato amable'],
+        colors: {
+          pillBg: 'bg-rose-100 dark:bg-rose-950/70',
+          pillText: 'text-rose-800 dark:text-rose-300',
+          barBg: 'bg-rose-500',
+          cardBorder: 'border-rose-200 dark:border-rose-800/60',
+          heroBg: 'from-rose-500 to-pink-500'
+        }
+      },
+      programacion: {
+        id: 'programacion',
+        name: 'Programación',
+        shortName: 'Programación',
+        badge: 'Sistemas, apps, código y lógica',
+        summary:
+          'Ideal para ti si te gusta resolver retos lógicos, entender cómo funcionan los programas y crear soluciones digitales paso a paso.',
+        learnings: [
+          'Lógica de programación, algoritmos y resolución ordenada de problemas.',
+          'Creación de páginas web, aplicaciones o sistemas y manejo de datos.',
+          'Búsqueda y corrección de errores (debugging) con paciencia y método.'
+        ],
+        skills: ['Pensamiento lógico', 'Análisis', 'Paciencia', 'Resolución de fallos', 'Creatividad digital'],
+        colors: {
+          pillBg: 'bg-indigo-100 dark:bg-indigo-950/70',
+          pillText: 'text-indigo-800 dark:text-indigo-300',
+          barBg: 'bg-indigo-600',
+          cardBorder: 'border-indigo-200 dark:border-indigo-800/60',
+          heroBg: 'from-indigo-600 to-blue-600'
+        }
+      },
+      comercio: {
+        id: 'comercio',
+        name: 'Comercio Internacional y Aduanas',
+        shortName: 'Comercio y Aduanas',
+        badge: 'Envíos globales, logística y fronteras',
+        summary:
+          'Ideal para ti si te interesa cómo viajan los productos entre países, los acuerdos comerciales, el transporte de carga y las reglas de aduana.',
+        learnings: [
+          'Procesos de compra y venta de productos entre México y otros países (importación y exportación).',
+          'Logística y transporte de mercancías por tierra, mar o aire.',
+          'Documentos, permisos y normas que se revisan en las aduanas y fronteras.'
+        ],
+        skills: ['Orden y precisión', 'Visión global', 'Seguimiento de reglas', 'Planeación', 'Negociación'],
+        colors: {
+          pillBg: 'bg-emerald-100 dark:bg-emerald-950/70',
+          pillText: 'text-emerald-800 dark:text-emerald-300',
+          barBg: 'bg-emerald-600',
+          cardBorder: 'border-emerald-200 dark:border-emerald-800/60',
+          heroBg: 'from-emerald-600 to-teal-600'
+        }
+      }
+    };
+
+    // Opciones de respuesta del 1 al 4 con vocabulario sencillo
+    const ANSWER_OPTIONS = [
+      { value: 1, label: 'Nada que ver conmigo', short: '1' },
+      { value: 2, label: 'A veces / Un poco', short: '2' },
+      { value: 3, label: 'Casi siempre / Me gusta bastante', short: '3' },
+      { value: 4, label: '¡Totalmente yo!', short: '4' }
+    ];
+
+    // 16 preguntas del test (4 por cada especialidad), redactadas en español cercano para 1.er semestre
+    const QUESTIONS = [
+      {
+        id: 1,
+        specialty: 'rrhh',
+        text: 'Me gusta platicar con mis compañeros, escuchar sus ideas y ayudar a que se pongan de acuerdo cuando hay diferencias.'
+      },
+      {
+        id: 2,
+        specialty: 'programacion',
+        text: 'Me llama la atención cómo funcionan las apps, los videojuegos o las páginas web, y me gusta resolver problemas paso a paso.'
+      },
+      {
+        id: 3,
+        specialty: 'cosmetologia',
+        text: 'Me interesa el cuidado de la piel, el cabello, el maquillaje, la higiene personal o cómo se elaboran productos de belleza y cuidado corporal.'
+      },
+      {
+        id: 4,
+        specialty: 'comercio',
+        text: 'Me da curiosidad saber de dónde vienen las cosas que compramos (ropa, tecnología, comida) y cómo viajan de un país a otro.'
+      },
+      {
+        id: 5,
+        specialty: 'rrhh',
+        text: 'Disfruto organizar equipos, repartir tareas o imaginar cómo hacer que un grupo trabaje mejor y más a gusto.'
+      },
+      {
+        id: 6,
+        specialty: 'programacion',
+        text: 'Tengo paciencia para revisar detalles pequeños cuando algo no funciona y buscar qué fue lo que falló.'
+      },
+      {
+        id: 7,
+        specialty: 'cosmetologia',
+        text: 'Me gusta experimentar con mezclas, texturas, aromas o aprender sobre el cuidado saludable del cuerpo y la imagen.'
+      },
+      {
+        id: 8,
+        specialty: 'comercio',
+        text: 'Me gustaría entender las reglas, permisos e impuestos que existen para traer o mandar productos entre México y otros países.'
+      },
+      {
+        id: 9,
+        specialty: 'rrhh',
+        text: 'Me importa que en la escuela o en un trabajo haya buen ambiente, respeto y ganas de salir adelante juntos.'
+      },
+      {
+        id: 10,
+        specialty: 'programacion',
+        text: 'Me siento cómodo pasando tiempo en la computadora aprendiendo códigos, sistemas o formas de facilitar tareas con tecnología.'
+      },
+      {
+        id: 11,
+        specialty: 'cosmetologia',
+        text: 'Me gusta dar consejos sobre cuidado personal, rutina de piel o cabello, o saber qué ingredientes ayudan según cada tipo de piel o cabello.'
+      },
+      {
+        id: 12,
+        specialty: 'comercio',
+        text: 'Me atrae el mundo de los negocios entre países, los idiomas, el traslado de mercancías y el movimiento en las fronteras.'
+      },
+      {
+        id: 13,
+        specialty: 'rrhh',
+        text: 'Se me facilita explicar cosas con claridad, hacer entrevistas o apoyar a alguien cuando tiene dudas sobre cómo va.'
+      },
+      {
+        id: 14,
+        specialty: 'programacion',
+        text: 'Me gusta armar rompecabezas, pensar en pasos lógicos o crear herramientas digitales desde cero.'
+      },
+      {
+        id: 15,
+        specialty: 'cosmetologia',
+        text: 'Me gusta ser muy cuidadoso con la limpieza, las medidas exactas, la buena presentación y tratar con amabilidad a quien atiendo.'
+      },
+      {
+        id: 16,
+        specialty: 'comercio',
+        text: 'Me gustaría conocer cómo funcionan las aduanas, los barcos, aviones o camiones de carga y los acuerdos entre países.'
+      }
+    ];
+
+    /**
+     * =========================================================================
+     * ESTADO DE LA APLICACIÓN
+     * =========================================================================
+     */
+    const state = {
+      view: 'welcome', // 'welcome' | 'quiz' | 'results'
+      currentIndex: 0,
+      answers: Array(QUESTIONS.length).fill(null) // Guarda valores de 1 a 4
+    };
+
+    const appRoot = document.getElementById('app-root');
+
+    /**
+     * Calcula los puntajes acumulados por especialidad (máximo 16 por área).
+     */
+    function calculateScores() {
+      const scores = {
+        rrhh: 0,
+        cosmetologia: 0,
+        programacion: 0,
+        comercio: 0
+      };
+
+      QUESTIONS.forEach((question, idx) => {
+        const val = state.answers[idx];
+        if (typeof val === 'number') {
+          scores[question.specialty] += val;
+        }
+      });
+
+      // Ordena las especialidades de mayor a menor puntaje
+      const ranked = Object.keys(scores)
+        .map((key) => ({
+          specialty: SPECIALTIES[key],
+          score: scores[key],
+          percentage: Math.round((scores[key] / 16) * 100)
+        }))
+        .sort((a, b) => b.score - a.score);
+
+      const topScore = ranked[0].score;
+      const topMatches = ranked.filter((item) => item.score === topScore);
+
+      return { scores, ranked, topMatches, topScore };
+    }
+
+    /**
+     * Cuenta cuántas preguntas han sido respondidas.
+     */
+    function getAnsweredCount() {
+      return state.answers.filter((val) => val !== null).length;
+    }
+
+    /**
+     * =========================================================================
+     * VISTAS / RENDERIZADO
+     * =========================================================================
+     */
+
+    function render() {
+      appRoot.innerHTML = '';
+
+      if (state.view === 'welcome') {
+        renderWelcomeView();
+      } else if (state.view === 'quiz') {
+        renderQuizView();
+      } else if (state.view === 'results') {
+        renderResultsView();
+      }
+    }
+
+    /**
+     * Pantalla inicial amigable para el alumno de primer semestre.
+     */
+    function renderWelcomeView() {
+      const answeredCount = getAnsweredCount();
+      const hasProgress = answeredCount > 0 && answeredCount < QUESTIONS.length;
+
+      const wrapper = document.createElement('section');
+      wrapper.className = 'flex-1 flex flex-col justify-center animate-fade-up';
+
+      wrapper.innerHTML = `
+        <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-6 sm:p-8">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 mb-4">
+            <span>16 preguntas rápidas • ~3 minutos</span>
+          </div>
+
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-snug mb-3">
+            Descubre tu especialidad ideal en el bachillerato
+          </h1>
+
+          <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+            Estás en primer semestre y pronto elegirás tu área de especialidad. Responde con honestidad según lo que te gusta y se te facilita: al terminar verás tu resultado al instante.
+          </p>
+
+          <!-- Vista previa de las 4 especialidades -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-7">
+            <div class="p-3 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/70 dark:border-amber-800/40">
+              <p class="text-xs font-bold text-amber-800 dark:text-amber-300">Recursos Humanos</p>
+              <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Personas, equipos y ambiente</p>
+            </div>
+            <div class="p-3 rounded-2xl bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200/70 dark:border-rose-800/40">
+              <p class="text-xs font-bold text-rose-800 dark:text-rose-300">Cosmetología</p>
+              <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Piel, cabello, estética y cuidado</p>
+            </div>
+            <div class="p-3 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200/70 dark:border-indigo-800/40">
+              <p class="text-xs font-bold text-indigo-800 dark:text-indigo-300">Programación</p>
+              <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Apps, código, lógica y sistemas</p>
+            </div>
+            <div class="p-3 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/70 dark:border-emerald-800/40">
+              <p class="text-xs font-bold text-emerald-800 dark:text-emerald-300">Comercio Int. y Aduanas</p>
+              <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Envíos globales y reglas de aduana</p>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-2.5">
+            <button
+              type="button"
+              id="start-quiz-btn"
+              class="w-full py-3.5 px-5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-bold text-base shadow-md shadow-indigo-600/20 transition cursor-pointer"
+            >
+              ${hasProgress ? `Continuar test (${answeredCount}/16)` : 'Comenzar mi test'}
+            </button>
+
+            ${
+              hasProgress
+                ? `<button
+                    type="button"
+                    id="restart-from-welcome-btn"
+                    class="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                  >
+                    Empezar desde la pregunta 1
+                  </button>`
+                : ''
+            }
+          </div>
+        </div>
+      `;
+
+      appRoot.appendChild(wrapper);
+
+      document.getElementById('start-quiz-btn').addEventListener('click', () => {
+        state.view = 'quiz';
+        // Si ya había avanzado, lleva a la primera sin responder o a la actual
+        if (hasProgress) {
+          const firstUnanswered = state.answers.findIndex((a) => a === null);
+          state.currentIndex = firstUnanswered !== -1 ? firstUnanswered : 0;
+        } else {
+          state.currentIndex = 0;
+        }
+        render();
+      });
+
+      const restartBtn = document.getElementById('restart-from-welcome-btn');
+      if (restartBtn) {
+        restartBtn.addEventListener('click', () => {
+          state.answers = Array(QUESTIONS.length).fill(null);
+          state.currentIndex = 0;
+          state.view = 'quiz';
+          render();
+        });
+      }
+    }
+
+    /**
+     * Pantalla del cuestionario: 1 pregunta clara a la vez con botones grandes del 1 al 4.
+     */
+    function renderQuizView() {
+      const question = QUESTIONS[state.currentIndex];
+      const currentAnswer = state.answers[state.currentIndex];
+      const answeredCount = getAnsweredCount();
+      const progressPercent = Math.round((answeredCount / QUESTIONS.length) * 100);
+      const allAnswered = answeredCount === QUESTIONS.length;
+
+      const wrapper = document.createElement('section');
+      wrapper.className = 'flex-1 flex flex-col justify-between animate-fade-up';
+
+      wrapper.innerHTML = `
+        <div>
+          <!-- Barra de progreso superior -->
+          <div class="mb-5">
+            <div class="flex items-center justify-between text-xs font-semibold mb-2">
+              <span class="text-slate-700 dark:text-slate-200">
+                Pregunta ${state.currentIndex + 1} de ${QUESTIONS.length}
+              </span>
+              <span class="text-indigo-600 dark:text-indigo-400">
+                ${answeredCount}/${QUESTIONS.length} contestadas (${progressPercent}%)
+              </span>
+            </div>
+            <div class="w-full h-2.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+              <div
+                class="h-full rounded-full bg-indigo-600 transition-all duration-300"
+                style="width: ${progressPercent}%"
+              ></div>
+            </div>
+
+            <!-- Puntos navegables rápidos para saltar o revisar preguntas -->
+            <div class="flex items-center justify-between gap-1 mt-3 overflow-x-auto pb-1" aria-label="Navegación rápida de preguntas">
+              ${QUESTIONS.map((q, idx) => {
+                const isCurrent = idx === state.currentIndex;
+                const isDone = state.answers[idx] !== null;
+                let dotClasses = 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400';
+                if (isCurrent) {
+                  dotClasses = 'bg-indigo-600 text-white ring-2 ring-indigo-300 dark:ring-indigo-700';
+                } else if (isDone) {
+                  dotClasses = 'bg-indigo-100 dark:bg-indigo-900/70 text-indigo-700 dark:text-indigo-300';
+                }
+                return `
+                  <button
+                    type="button"
+                    data-jump-index="${idx}"
+                    class="w-6 h-6 rounded-lg text-[11px] font-bold shrink-0 flex items-center justify-center transition cursor-pointer ${dotClasses}"
+                    aria-label="Ir a la pregunta ${idx + 1}"
+                  >
+                    ${idx + 1}
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <!-- Tarjeta de pregunta y botones de respuesta del 1 al 4 -->
+          <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-7">
+            <p class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-2">
+              Toca la opción que más se parezca a ti
+            </p>
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white leading-snug mb-6">
+              “${question.text}”
+            </h2>
+
+            <div class="flex flex-col gap-3" role="radiogroup" aria-label="Opciones de respuesta">
+              ${ANSWER_OPTIONS.map((opt) => {
+                const selected = currentAnswer === opt.value;
+                return `
+                  <button
+                    type="button"
+                    data-answer-value="${opt.value}"
+                    role="radio"
+                    aria-checked="${selected}"
+                    class="w-full flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl border text-left transition active:scale-[0.99] cursor-pointer ${
+                      selected
+                        ? 'bg-indigo-50 dark:bg-indigo-950/60 border-indigo-600 dark:border-indigo-400 shadow-xs'
+                        : 'bg-slate-50/70 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700'
+                    }"
+                  >
+                    <span class="w-9 h-9 rounded-xl flex items-center justify-center font-extrabold text-sm shrink-0 ${
+                      selected
+                        ? 'bg-indigo-600 text-white'
+                        : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
+                    }">
+                      ${opt.short}
+                    </span>
+                    <span class="text-sm sm:text-base font-semibold ${
+                      selected
+                        ? 'text-indigo-950 dark:text-indigo-100'
+                        : 'text-slate-800 dark:text-slate-200'
+                    }">
+                      ${opt.label}
+                    </span>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+
+            <!-- Aviso si intenta ver resultados faltando preguntas -->
+            <p id="incomplete-notice" class="hidden mt-4 text-xs font-semibold text-rose-600 dark:text-rose-400">
+              Te faltan ${QUESTIONS.length - answeredCount} pregunta(s) por responder para calcular tu resultado final.
+            </p>
+          </div>
+        </div>
+
+        <!-- Controles inferiores: Anterior / Siguiente o Ver resultado -->
+        <div class="mt-5 flex items-center justify-between gap-3">
+          <button
+            type="button"
+            id="prev-question-btn"
+            class="px-4 py-3 rounded-2xl text-sm font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer"
+            ${state.currentIndex === 0 ? 'disabled' : ''}
+          >
+            ← Anterior
+          </button>
+
+          ${
+            state.currentIndex < QUESTIONS.length - 1
+              ? `<button
+                  type="button"
+                  id="next-question-btn"
+                  class="flex-1 sm:flex-initial px-6 py-3 rounded-2xl text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition cursor-pointer"
+                >
+                  Siguiente →
+                </button>`
+              : `<button
+                  type="button"
+                  id="finish-quiz-btn"
+                  class="flex-1 sm:flex-initial px-6 py-3 rounded-2xl text-sm font-bold ${
+                    allAnswered
+                      ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20'
+                      : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                  } transition cursor-pointer"
+                >
+                  Ver mi resultado ✓
+                </button>`
+          }
+        </div>
+      `;
+
+      appRoot.appendChild(wrapper);
+
+      // Seleccionar respuesta del 1 al 4 y avanzar automáticamente tras un breve instante
+      wrapper.querySelectorAll('[data-answer-value]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const value = Number(btn.getAttribute('data-answer-value'));
+          state.answers[state.currentIndex] = value;
+
+          // Si ya respondieron todas las preguntas y estaban en la última, se puede mostrar o avanzar
+          if (state.currentIndex < QUESTIONS.length - 1) {
+            state.currentIndex += 1;
+            render();
+          } else {
+            render();
+            if (getAnsweredCount() === QUESTIONS.length) {
+              state.view = 'results';
+              render();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+          }
+        });
+      });
+
+      // Saltar a una pregunta específica desde los indicadores
+      wrapper.querySelectorAll('[data-jump-index]').forEach((dotBtn) => {
+        dotBtn.addEventListener('click', () => {
+          state.currentIndex = Number(dotBtn.getAttribute('data-jump-index'));
+          render();
+        });
+      });
+
+      // Botón Anterior
+      const prevBtn = document.getElementById('prev-question-btn');
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+          if (state.currentIndex > 0) {
+            state.currentIndex -= 1;
+            render();
+          }
+        });
+      }
+
+      // Botón Siguiente
+      const nextBtn = document.getElementById('next-question-btn');
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+          if (state.currentIndex < QUESTIONS.length - 1) {
+            state.currentIndex += 1;
+            render();
+          }
+        });
+      }
+
+      // Botón Ver resultado
+      const finishBtn = document.getElementById('finish-quiz-btn');
+      if (finishBtn) {
+        finishBtn.addEventListener('click', () => {
+          if (getAnsweredCount() === QUESTIONS.length) {
+            state.view = 'results';
+            render();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          } else {
+            const firstMissing = state.answers.findIndex((a) => a === null);
+            const notice = document.getElementById('incomplete-notice');
+            if (notice) {
+              notice.classList.remove('hidden');
+            }
+            if (firstMissing !== -1) {
+              state.currentIndex = firstMissing;
+              render();
+              const updatedNotice = document.getElementById('incomplete-notice');
+              if (updatedNotice) updatedNotice.classList.remove('hidden');
+            }
+          }
+        });
+      }
+    }
+
+    /**
+     * Pantalla inmediata de resultados: especialidad principal (o empates),
+     * desglose de puntajes, qué aprenderán, habilidades y botón para repetir.
+     */
+    function renderResultsView() {
+      const { ranked, topMatches, topScore } = calculateScores();
+      const isTie = topMatches.length > 1;
+
+      const wrapper = document.createElement('section');
+      wrapper.className = 'flex-1 flex flex-col gap-5 animate-fade-up';
+
+      // Encabezado del resultado principal o empate
+      const heroHtml = isTie
+        ? `
+          <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
+              <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-white/20 mb-2">
+                ¡Empate en el puntaje más alto (${topScore}/16)!
+              </span>
+              <h1 class="text-2xl sm:text-3xl font-extrabold leading-tight">
+                Tienes afinidad con ${topMatches.length} especialidades
+              </h1>
+              <p class="text-sm text-indigo-100 mt-1.5">
+                Obtuviste el mismo puntaje en estas áreas. Revisa sus actividades y habilidades para decidir cuál te entusiasma más.
+              </p>
+            </div>
+            <div class="p-5 sm:p-6 space-y-5">
+              ${topMatches.map((match) => renderSpecialtyDetailBlock(match.specialty, match.score)).join('')}
+            </div>
+          </div>
+        `
+        : (() => {
+            const main = topMatches[0];
+            const sp = main.specialty;
+            return `
+              <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                <div class="bg-gradient-to-r ${sp.colors.heroBg} p-6 text-white">
+                  <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-white/20 mb-2">
+                    Tu especialidad con mayor afinidad • ${main.score}/16 pts
+                  </span>
+                  <h1 class="text-2xl sm:text-3xl font-extrabold leading-tight">
+                    ${sp.name}
+                  </h1>
+                  <p class="text-sm text-white/90 font-medium mt-1">
+                    ${sp.badge}
+                  </p>
+                </div>
+                <div class="p-5 sm:p-6">
+                  ${renderSpecialtyDetailBlock(sp, main.score, true)}
+                </div>
+              </div>
+            `;
+          })();
+
+      // Desglose completo de las 4 especialidades
+      const breakdownHtml = `
+        <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-6">
+          <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-1">
+            Tu puntaje en las 4 especialidades
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-4">
+            Cada área tiene un puntaje máximo de 16 puntos (4 preguntas de 1 a 4).
+          </p>
+
+          <div class="space-y-4">
+            ${ranked
+              .map((item) => {
+                const sp = item.specialty;
+                const isTop = item.score === topScore;
+                return `
+                  <div>
+                    <div class="flex items-center justify-between gap-2 text-sm mb-1.5">
+                      <div class="flex items-center gap-2 min-w-0">
+                        <span class="font-bold text-slate-800 dark:text-slate-100 truncate">
+                          ${sp.name}
+                        </span>
+                        ${
+                          isTop
+                            ? `<span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${sp.colors.pillBg} ${sp.colors.pillText} shrink-0">
+                                Mayor afinidad
+                              </span>`
+                            : ''
+                        }
+                      </div>
+                      <span class="font-extrabold text-slate-900 dark:text-white shrink-0">
+                        ${item.score} / 16
+                      </span>
+                    </div>
+                    <div class="w-full h-3 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                      <div
+                        class="h-full rounded-full ${sp.colors.barBg} transition-all duration-500"
+                        style="width: ${item.percentage}%"
+                      ></div>
+                    </div>
+                  </div>
+                `;
+              })
+              .join('')}
+          </div>
+        </div>
+      `;
+
+      // Consejos finales y botón para repetir el test
+      const footerActionsHtml = `
+        <div class="rounded-3xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-5 flex flex-col gap-4">
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            <strong class="text-slate-800 dark:text-white">Tip para elegir:</strong> Platica con tu orientador o docentes sobre las materias de tu especialidad favorita y piensa qué actividades disfrutarías hacer en el día a día.
+          </p>
+
+          <div class="flex flex-col sm:flex-row gap-2.5">
+            <button
+              type="button"
+              id="retake-quiz-btn"
+              class="flex-1 py-3.5 px-5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-bold text-sm shadow-sm transition cursor-pointer"
+            >
+              Repetir el test
+            </button>
+            <button
+              type="button"
+              id="review-answers-btn"
+              class="py-3.5 px-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 font-semibold text-sm transition cursor-pointer"
+            >
+              Revisar respuestas
+            </button>
+          </div>
+        </div>
+      `;
+
+      wrapper.innerHTML = heroHtml + breakdownHtml + footerActionsHtml;
+      appRoot.appendChild(wrapper);
+
+      document.getElementById('retake-quiz-btn').addEventListener('click', () => {
+        state.answers = Array(QUESTIONS.length).fill(null);
+        state.currentIndex = 0;
+        state.view = 'quiz';
+        render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      document.getElementById('review-answers-btn').addEventListener('click', () => {
+        state.currentIndex = 0;
+        state.view = 'quiz';
+        render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    /**
+     * Genera el bloque descriptivo de una especialidad (qué aprenderán y habilidades).
+     */
+    function renderSpecialtyDetailBlock(sp, score, isSingleWinner = false) {
+      return `
+        <div class="${!isSingleWinner ? `p-4 rounded-2xl border ${sp.colors.cardBorder} bg-slate-50/50 dark:bg-slate-950/40` : ''}">
+          ${
+            !isSingleWinner
+              ? `<div class="flex items-center justify-between gap-2 mb-2">
+                  <h3 class="text-lg font-extrabold text-slate-900 dark:text-white">${sp.name}</h3>
+                  <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${sp.colors.pillBg} ${sp.colors.pillText}">${score}/16 pts</span>
+                </div>`
+              : ''
+          }
+          <p class="text-sm sm:text-base text-slate-700 dark:text-slate-200 leading-relaxed mb-4">
+            ${sp.summary}
+          </p>
+
+          <div class="mb-4">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+              ¿Qué aprenderás y harás?
+            </h4>
+            <ul class="space-y-2 text-sm text-slate-700 dark:text-slate-300">
+              ${sp.learnings
+                .map(
+                  (item) => `
+                <li class="flex items-start gap-2">
+                  <span class="text-indigo-600 dark:text-indigo-400 font-bold mt-0.5">•</span>
+                  <span>${item}</span>
+                </li>
+              `
+                )
+                .join('')}
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+              Habilidades que desarrollarás
+            </h4>
+            <div class="flex flex-wrap gap-2">
+              ${sp.skills
+                .map(
+                  (skill) => `
+                <span class="px-3 py-1 rounded-full text-xs font-semibold ${sp.colors.pillBg} ${sp.colors.pillText}">
+                  ${skill}
+                </span>
+              `
+                )
+                .join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    /**
+     * =========================================================================
+     * MODO DOCENTE / CÓDIGO QR DINÁMICO
+     * =========================================================================
+     */
+    const teacherModal = document.getElementById('teacher-modal');
+    const openTeacherBtn = document.getElementById('open-teacher-btn');
+    const closeTeacherBtn = document.getElementById('close-teacher-btn');
+    const doneTeacherBtn = document.getElementById('done-teacher-btn');
+    const printQrBtn = document.getElementById('print-qr-btn');
+    const qrUrlInput = document.getElementById('qr-url-input');
+    const copyUrlBtn = document.getElementById('copy-url-btn');
+    const copyFeedback = document.getElementById('copy-feedback');
+    const qrcodeContainer = document.getElementById('qrcode-container');
+
+    let qrInstance = null;
+
+    function generateQRCode(urlText) {
+      const cleanUrl = (urlText || '').trim() || window.location.href;
+      qrcodeContainer.innerHTML = '';
+
+      if (typeof QRCode !== 'undefined') {
+        qrInstance = new QRCode(qrcodeContainer, {
+          text: cleanUrl,
+          width: 192,
+          height: 192,
+          colorDark: '#0f172a',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      } else {
+        qrcodeContainer.innerHTML = `<p class="text-xs text-rose-600 text-center">No se pudo cargar el generador QR. Enlace: ${cleanUrl}</p>`;
+      }
+    }
+
+    function openTeacherModal() {
+      const currentUrl = window.location.href;
+      qrUrlInput.value = currentUrl;
+      copyFeedback.classList.add('hidden');
+      generateQRCode(currentUrl);
+
+      teacherModal.classList.remove('hidden');
+      teacherModal.classList.add('flex');
+    }
+
+    function closeTeacherModal() {
+      teacherModal.classList.add('hidden');
+      teacherModal.classList.remove('flex');
+    }
+
+    openTeacherBtn.addEventListener('click', openTeacherModal);
+    closeTeacherBtn.addEventListener('click', closeTeacherModal);
+    doneTeacherBtn.addEventListener('click', closeTeacherModal);
+
+    teacherModal.addEventListener('click', (event) => {
+      if (event.target === teacherModal) {
+        closeTeacherModal();
+      }
+    });
+
+    qrUrlInput.addEventListener('input', () => {
+      generateQRCode(qrUrlInput.value);
+    });
+
+    copyUrlBtn.addEventListener('click', () => {
+      qrUrlInput.select();
+      qrUrlInput.setSelectionRange(0, 99999);
+      try {
+        document.execCommand('copy');
+        copyFeedback.classList.remove('hidden');
+      } catch (err) {
+        copyFeedback.textContent = 'Selecciona y copia el enlace manualmente.';
+        copyFeedback.classList.remove('hidden');
+      }
+    });
+
+    printQrBtn.addEventListener('click', () => {
+      generateQRCode(qrUrlInput.value);
+      window.print();
+    });
+
+    // Regresar a la pantalla inicial al tocar el logo superior
+    document.getElementById('brand-home-btn').addEventListener('click', () => {
+      state.view = 'welcome';
+      render();
+    });
+
+    // Renderizado inicial de la aplicación
+    render();
+  </script>
+</body>
+</html>
